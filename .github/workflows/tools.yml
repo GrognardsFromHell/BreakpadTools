@@ -57,3 +57,12 @@ jobs:
           breakpad/src/tools/windows/converter_exe/Release/converter_exe.exe
           breakpad/src/tools/windows/symupload/Release/symupload.exe
         retention-days: 1
+
+    - name: Publish Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          breakpad/src/tools/windows/dump_syms/Release/dump_syms.exe
+          breakpad/src/tools/windows/converter_exe/Release/converter_exe.exe
+          breakpad/src/tools/windows/symupload/Release/symupload.exe
