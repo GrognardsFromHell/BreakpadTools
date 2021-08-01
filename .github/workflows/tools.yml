@@ -14,6 +14,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
+        path: patches
+
+    - uses: actions/checkout@v2
+      with:
         repository: 'chromium/gyp'
         ref: 'e87d37d6bce611abed35e854d5ae1a401e9ce04c'
         path: gyp
@@ -26,7 +30,7 @@ jobs:
         path: breakpad
 
     - name: Apply VS2019 Patch
-      run: git apply 0001-VS2019-compatibility.patch
+      run: git apply ../patches/0001-VS2019-compatibility.patch
       working-directory: ./breakpad
 
     # rebuild the binaries to make use of the DIA SDK included in our version of visual studio
