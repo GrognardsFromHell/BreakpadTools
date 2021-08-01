@@ -2,6 +2,7 @@ name: CI
 
 # Only run manually
 on:
+  push:
   workflow_dispatch:
 
 jobs:
@@ -28,8 +29,9 @@ jobs:
     - name: Build
       run: |
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-        gyp\gyp breakpad\src\tools\windows\tools_windows.gyp
-        devenv breakpad\src\tools\windowstools_windows.sln /build Release|Win32 || true
+        gyp\gyp breakpad\src\tools\windows\tools_windows.gyp || true
+        msbuild breakpad\src\tools\windowstools_windows.sln /build Release|Win32 || true
+        dir /s
 
       # Need to use cmd because of the vcvars32 batch file
       shell: cmd
