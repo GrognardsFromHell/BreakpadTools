@@ -1,0 +1,37 @@
+name: CI
+
+# Only run manually
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        repository: 'chromium/gyp'
+        ref: 'e87d37d6bce611abed35e854d5ae1a401e9ce04c'
+        path: gyp
+
+    - uses: actions/checkout@v2
+      with:
+        repository: 'google/breakpad'
+        # This should match our external dependency version in TemplePlus
+        ref: 'b324760c7f53667af128a6b77b790323da04fcb9'
+        path: breakpad
+
+    # rebuild the binaries to make use of the DIA SDK included in our version of visual studio
+    - name: Build
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+        gyp\gyp breakpad\src\tools\windows\tools_windows.gyp
+        devenv breakpad\src\tools\windowstools_windows.sln /build Release|Win32 || true
+
+      # Need to use cmd because of the vcvars32 batch file
+      shell: cmd
+      env:
+        BUILD_NUMBER: ${GITHUB_RUN_NUMBER}
