@@ -25,18 +25,24 @@ jobs:
         ref: 'b324760c7f53667af128a6b77b790323da04fcb9'
         path: breakpad
 
+    - name: Apply VS2019 Patch
+      run: git apply 0001-VS2019-compatibility.patch
+      working-directory: ./breakpad
+
     # rebuild the binaries to make use of the DIA SDK included in our version of visual studio
     - name: Build
       run: |
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
         call gyp\gyp breakpad\src\tools\windows\tools_windows.gyp
-        msbuild breakpad\src\tools\windows\tools_windows.sln /p:Configuration="Release|Win32" /t:symupload;ms_symbol_server_converter;dump_syms
+        msbuild breakpad\src\tools\windows\symupload\symupload.vcxproj /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v142
+        msbuild breakpad\src\tools\windows\dump_syms\dump_syms.vcxproj /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v142
+        msbuild breakpad\src\tools\windows\converter_exe\converter_exe.vcxproj /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v142
 
       # Need to use cmd because of the vcvars32 batch file
       shell: cmd
       env:
         BUILD_NUMBER: ${GITHUB_RUN_NUMBER}
-        GYP_MSVS_VERSION: 2015
+        GYP_MSVS_VERSION: 2017
 
     - name: 'Upload Artifact'
       uses: actions/upload-artifact@v2
